@@ -13,7 +13,7 @@ const authItems = [
 ];
 
 export const Sidebar = () => (
-  <aside className="w-64 h-screen bg-primary-light border-r border-gray-200 p-8 flex flex-col rounded-2xl shadow-lg mx-4 sm:ml-6">
+  <aside className="w-64 h-screen bg-primary-light border-r border-gray-200 p-8 flex flex-col rounded-2xl shadow-lg mx-4 mt-1 sm:mt-2 md:mt-5">
 
     {/* App Logo and Name */}
     <div className="flex items-center gap-4 mb-12">
