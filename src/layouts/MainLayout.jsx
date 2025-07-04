@@ -2,24 +2,25 @@ import { Sidebar } from '../partials/Sidebar';
 import { Navbar } from '../partials/Navbar';
 
 export const MainLayout = ({ children }) => {
-    const user = {
+  const user = {
     name: 'Jamaica Salem',
     email: 'jamaica.esalem@gmail.com',
   };
+
   return (
     <div className="flex min-h-screen">
 
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Right side */}
+      {/* Right Side */}
       <div className="flex flex-col flex-1 bg-white">
 
         {/* Navbar */}
         <Navbar appName="Caffi" user={user} />
 
-        {/* Page Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        {/* Page Content without padding */}
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
 
