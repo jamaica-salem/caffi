@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Sidebar } from '../partials/Sidebar';
 import { Navbar } from '../partials/Navbar';
 
@@ -7,20 +8,38 @@ export const MainLayout = ({ children }) => {
     email: 'jamaica.esalem@gmail.com',
   };
 
-  return (
-    <div className="flex min-h-screen">
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-      {/* Sidebar */}
-      <Sidebar />
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setShowNavbar(currentScrollY < lastScrollY || currentScrollY < 50);
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+
+      {/* Sidebar Fixed */}
+      <div className="h-screen sticky top-0">
+        <Sidebar />
+      </div>
 
       {/* Right Side */}
-      <div className="flex flex-col flex-1 bg-white">
+      <div className="flex flex-col flex-1 h-screen overflow-hidden">
 
-        {/* Navbar */}
-        <Navbar appName="Caffi" user={user} />
+        {/* Navbar - hide on scroll */}
+        <div className={`transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}>
+          <Navbar appName="Caffi" user={user} />
+        </div>
 
-        {/* Page Content without padding */}
-        <main className="flex-1 overflow-auto">
+        {/* Page Content - scrollable */}
+        <main className="flex-1 overflow-auto p-6 bg-white">
           {children}
         </main>
 
