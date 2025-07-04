@@ -12,13 +12,13 @@ const authItems = [
   { to: '/signup', label: 'Sign Up', icon: UserPlus },
 ];
 
-export const Sidebar = () => (
+export const Sidebar = ({ appName }) => (
   <aside className="w-64 h-screen bg-primary-light border-r border-gray-200 p-8 flex flex-col rounded-2xl shadow-lg mx-4 mt-1 sm:mt-2 md:mt-5">
 
     {/* App Logo and Name */}
     <div className="flex items-center gap-4 mb-12">
       <Coffee className="text-accent" size={32} />
-      <span className="text-2xl font-extrabold text-accent">Caffi</span>
+      <span className="text-2xl font-extrabold text-accent">{appName}</span>
     </div>
 
     <div className="flex-1 flex flex-col justify-between">

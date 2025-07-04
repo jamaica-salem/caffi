@@ -27,7 +27,7 @@ export const MainLayout = ({ children }) => {
 
       {/* Sidebar Fixed */}
       <div className="h-screen sticky top-0">
-        <Sidebar />
+        <Sidebar appName="Caffi" />
       </div>
 
       {/* Right Side */}

@@ -1,7 +1,8 @@
 import { Card } from '../reusable/Card';
 import { FolderKanban, CheckCircle, PlayCircle, Clock3, ArrowUpRight, ArrowDownRight, Plus, Upload } from 'lucide-react';
 import { ProjectAnalyticsCard } from '../components/ProjectAnalyticsCard';
-
+import { RemindersCard } from '../components/RemindersCard';
+import { KpiCard } from '../components/KpiCard';
 
 export const Dashboard = () => {
   return (
@@ -27,73 +28,49 @@ export const Dashboard = () => {
         {/* First Row: KPIs */}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-
-            {/* Total Projects */}
-            <div className="bg-accent rounded-xl p-6 shadow text-white">
-                <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-base">Total Projects</h3>
-                <FolderKanban size={24} />
-                </div>
-                <p className="text-4xl font-extrabold mb-2">28</p>
-                <div className="flex items-center text-sm">
-                <ArrowUpRight size={16} className="text-green-500 mr-1" />
-                <span>+5% from last month</span>
-                </div>
-            </div>
-
-            {/* Ended Projects */}
-            <div className="bg-white rounded-xl p-6 shadow text-black">
-                <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-black">Ended Projects</h3>
-                <CheckCircle size={24}  />
-                </div>
-                <p className="text-4xl font-extrabold mb-2 text-black">8</p>
-                <div className="flex items-center text-sm">
-                <ArrowDownRight size={16} className="text-red-500 mr-1" />
-                <span>-2% from last month</span>
-                </div>
-            </div>
-
-            {/* Running Projects */}
-            <div className="bg-white rounded-xl p-6 shadow text-black">
-                <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-black">Running Projects</h3>
-                <PlayCircle size={24} />
-                </div>
-                <p className="text-4xl font-extrabold mb-2 text-black">12</p>
-                <div className="flex items-center text-sm">
-                <ArrowUpRight size={16} className="text-green-500 mr-1" />
-                <span>+3% from last month</span>
-                </div>
-            </div>
-
-            {/* Pending Projects */}
-            <div className="bg-white rounded-xl p-6 shadow text-black">
-                <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-black">Pending Projects</h3>
-                <Clock3 size={24} />
-                </div>
-                <p className="text-4xl font-extrabold mb-2 text-black">8</p>
-                <div className="flex items-center text-sm">
-                <ArrowDownRight size={16} className="text-red-500 mr-1" />
-                <span>-1% from last month</span>
-                </div>
-            </div>
-
+            <KpiCard
+                title="Total Projects"
+                value="28"
+                change="+5% from last month"
+                icon={FolderKanban}
+                isIncrease={true}
+                bgColor="bg-accent"
+                textColor="text-white"
+            />
+            <KpiCard
+                title="Ended Projects"
+                value="8"
+                change="-2% from last month"
+                icon={CheckCircle}
+                isIncrease={false}
+                bgColor="bg-white"
+                textColor="text-black"
+            />
+            <KpiCard
+                title="Running Projects"
+                value="12"
+                change="+3% from last month"
+                icon={PlayCircle}
+                isIncrease={true}
+                bgColor="bg-white"
+                textColor="text-black"
+            />
+            <KpiCard
+                title="Pending Projects"
+                value="8"
+                change="-1% from last month"
+                icon={Clock3}
+                isIncrease={false}
+                bgColor="bg-white"
+                textColor="text-black"
+            />
         </div>
 
 
         {/* Second Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           <ProjectAnalyticsCard />
-          <div className="bg-white rounded-xl p-6 shadow border">
-            <h3 className="text-primary font-semibold text-lg mb-5">Reminders</h3>
-            <ul className="text-primary-darkest text-base space-y-3">
-              <li>Submit Q3 Report - July 10</li>
-              <li>Client Meeting - July 12</li>
-              <li>Design Review - July 15</li>
-            </ul>
-          </div>
+          <RemindersCard />
           <div className="bg-white rounded-xl p-6 shadow border">
             <h3 className="text-primary font-semibold text-lg mb-5">Projects</h3>
             <ul className="text-primary-darkest text-base space-y-3">
