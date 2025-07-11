@@ -51,7 +51,7 @@ export const Sidebar = ({ appName }) => (
               to={to}
               className={({ isActive }) =>
                 `group flex items-center gap-4 text-lg font-medium rounded-lg px-3 py-2 transition-colors
-                 ${isActive ? 'text-accent bg-primary-light shadow-sm border-l-4 border-accent' : 'text-primary-darkest hover:text-accent hover:bg-primary-lightest'}`
+                 ${isActive ? 'text-accent bg-primary-light border-l-4 border-accent' : 'text-primary-darkest hover:text-accent hover:bg-primary-lightest'}`
               }
             >
               <Icon size={22} />

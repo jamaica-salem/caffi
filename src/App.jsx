@@ -2,10 +2,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { RootLayout } from './layouts/RootLayout';
 import { MainLayout } from './layouts/MainLayout';
 import { Dashboard } from './pages/Dashboard';
-import { Profile } from './pages/Profile';
+import Profile from './pages/Profile';
 import { Tables } from './pages/Tables';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
+
+
+
 
 export default function App() {
   return (
