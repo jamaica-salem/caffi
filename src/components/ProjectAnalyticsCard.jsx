@@ -61,7 +61,7 @@ const chartOptions = {
 
 export const ProjectAnalyticsCard = () => (
   <div className="bg-white rounded-xl p-6 shadow border">
-    <h3 className="text-primary font-semibold text-lg mb-5">Project Analytics</h3>
+    <h3 className="text-primary font-semibold text-base mb-5">Project Analytics</h3>
     <div className="h-40">
       <Line data={chartData} options={chartOptions} />
     </div>

@@ -1,8 +1,12 @@
 import { Card } from '../reusable/Card';
-import { FolderKanban, CheckCircle, PlayCircle, Clock3, ArrowUpRight, ArrowDownRight, Plus, Upload } from 'lucide-react';
+import { FolderKanban, CheckCircle, PlayCircle, Clock3, ArrowUpRight, ArrowDownRight, Plus, Upload, Video, Database, Code, RefreshCw, Smartphone, Laptop } from 'lucide-react';
 import { ProjectAnalyticsCard } from '../components/ProjectAnalyticsCard';
 import { RemindersCard } from '../components/RemindersCard';
 import { KpiCard } from '../components/KpiCard';
+import { ProjectsCard } from '../components/ProjectsCard';
+import ActionButton from '../reusable/ActionButton';
+import TeamCollaborationCard from '../components/TeamCollaborationCard.jsx';
+import ProjectProgressCard from '../components/ProjectProgressCard.jsx';
 
 export const Dashboard = () => {
   return (
@@ -11,94 +15,92 @@ export const Dashboard = () => {
 
         {/* Header and Action Buttons */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
 
-          <div className="flex gap-4">
-            <button className="flex items-center gap-3 bg-accent text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-accent/90 transition">
-              <Plus size={20} />
-              Add Project
-            </button>
-            <button className="flex items-center gap-3 bg-white text-accent border border-accent px-6 py-3 rounded-full text-lg font-semibold hover:bg-accent hover:text-white transition">
-              <Upload size={20} />
-              Import Data
-            </button>
+          <div className="flex gap-3">
+            <ActionButton
+              label="Add Project"
+              icon={Plus}
+              variant="primary"
+              onClick={() => console.log('Add Project clicked')}
+            />
+            <ActionButton
+              label="Import Data"
+              icon={Upload}
+              variant="secondary"
+              onClick={() => console.log('Import Data clicked')}
+            />
           </div>
         </div>
 
         {/* First Row: KPIs */}
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <KpiCard
-                title="Total Projects"
-                value="28"
-                change="+5% from last month"
-                icon={FolderKanban}
-                isIncrease={true}
-                bgColor="bg-accent"
-                textColor="text-white"
-            />
-            <KpiCard
-                title="Ended Projects"
-                value="8"
-                change="-2% from last month"
-                icon={CheckCircle}
-                isIncrease={false}
-                bgColor="bg-white"
-                textColor="text-black"
-            />
-            <KpiCard
-                title="Running Projects"
-                value="12"
-                change="+3% from last month"
-                icon={PlayCircle}
-                isIncrease={true}
-                bgColor="bg-white"
-                textColor="text-black"
-            />
-            <KpiCard
-                title="Pending Projects"
-                value="8"
-                change="-1% from last month"
-                icon={Clock3}
-                isIncrease={false}
-                bgColor="bg-white"
-                textColor="text-black"
-            />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+          <KpiCard
+            title="Total Projects"
+            value="28"
+            change="+5% from last month"
+            icon={FolderKanban}
+            isIncrease={true}
+            bgColor="bg-accent"
+            textColor="text-white"
+          />
+          <KpiCard
+            title="Ended Projects"
+            value="8"
+            change="-2% from last month"
+            icon={CheckCircle}
+            isIncrease={false}
+            bgColor="bg-white"
+            textColor="text-black"
+          />
+          <KpiCard
+            title="Running Projects"
+            value="12"
+            change="+3% from last month"
+            icon={PlayCircle}
+            isIncrease={true}
+            bgColor="bg-white"
+            textColor="text-black"
+          />
+          <KpiCard
+            title="Pending Projects"
+            value="8"
+            change="-1% from last month"
+            icon={Clock3}
+            isIncrease={false}
+            bgColor="bg-white"
+            textColor="text-black"
+          />
         </div>
-
 
         {/* Second Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-          <ProjectAnalyticsCard />
-          <RemindersCard />
-          <div className="bg-white rounded-xl p-6 shadow border">
-            <h3 className="text-primary font-semibold text-lg mb-5">Projects</h3>
-            <ul className="text-primary-darkest text-base space-y-3">
-              <li>Website Redesign - July 30</li>
-              <li>Mobile App Launch - August 15</li>
-              <li>Database Migration - August 22</li>
-            </ul>
-          </div>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
 
-        {/* Third Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl p-6 shadow border">
-            <h3 className="text-primary font-semibold text-lg mb-5">Team Collaboration</h3>
-            <ul className="text-primary-darkest text-base space-y-3">
-              <li>Jane D. - Design Phase - In Progress</li>
-              <li>John S. - Development - Completed</li>
-              <li>Maria T. - Testing - Pending</li>
-            </ul>
+          {/* Project Analytics */}
+          <div className="lg:col-span-2">
+            <ProjectAnalyticsCard />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow border">
-            <h3 className="text-primary font-semibold text-lg mb-5">Project Progress</h3>
-            <div className="h-40 flex items-center justify-center text-gray-400 text-base">[Progress Chart]</div>
+
+          {/* Reminders */}
+          <div className="lg:col-span-1">
+            <RemindersCard
+              title="Meeting with Sir Lew Jason Nuda"
+              time="Time: 2:00pm - 4:00pm"
+              buttonLabel="Start Meeting"
+              icon={Video}
+              onButtonClick={() => console.log('Meeting Started')}
+            />
           </div>
-          <div className="bg-white rounded-xl p-6 shadow border">
-            <h3 className="text-primary font-semibold text-lg mb-5">Time Tracker</h3>
-            <div className="h-40 flex items-center justify-center text-gray-400 text-base">[Time Tracker Placeholder]</div>
+
+          {/* Projects */}
+          <ProjectsCard />
+
+          {/* Third Row - Combine TeamCollab and Progress */}
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <TeamCollaborationCard />
+            <ProjectProgressCard />
           </div>
+
         </div>
 
       </Card>
