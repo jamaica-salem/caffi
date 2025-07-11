@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '../partials/Sidebar';
 import { Navbar } from '../partials/Navbar';
+import { Outlet } from 'react-router-dom';  
 
-export const MainLayout = ({ children }) => {
+export const MainLayout = () => {  
   const user = {
     name: 'Jamaica Salem',
     email: 'jamaica.esalem@gmail.com',
@@ -33,14 +34,14 @@ export const MainLayout = ({ children }) => {
       {/* Right Side */}
       <div className="flex flex-col flex-1 h-screen overflow-hidden">
 
-        {/* Navbar - hide on scroll */}
+        {/* Navbar */}
         <div className={`transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}>
           <Navbar appName="Caffi" user={user} />
         </div>
 
-        {/* Page Content - scrollable */}
+        {/* Page Content */}
         <main className="flex-1 overflow-auto p-6 bg-white">
-          {children}
+          <Outlet /> 
         </main>
 
       </div>

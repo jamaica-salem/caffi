@@ -2,6 +2,7 @@ import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebookF } from 'react-icons/fa';
 import { Coffee } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const SignIn = () => (
   <div className="flex min-h-screen bg-[#e0ece6]">
@@ -66,7 +67,7 @@ export const SignIn = () => (
 
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          Don’t have an account? <a href="#" className="text-[#226440] hover:underline">Sign up</a>
+          Don’t have an account?  <Link to="/signup" className="text-green-600 hover:underline">Sign up</Link>
         </p>
 
       </div>

@@ -61,7 +61,7 @@ export const SignUp = () => (
       </div>
     </div>
 
-    {/* Branding - RIGHT SIDE */}
+    {/* Branding - RIGHT SIDE*/}
     <div className="hidden lg:flex flex-1 bg-gradient-to-br from-[#f5faf7] to-[#e9f3ee] items-center justify-center">
       <div className="text-center px-12">
         <div className="bg-[#d4e2da] p-4 rounded-2xl shadow inline-block mb-6">
