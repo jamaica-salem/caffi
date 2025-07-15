@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { Coffee, LayoutDashboard, User, Table2, LogIn, UserPlus } from 'lucide-react';
+import { Coffee, LayoutDashboard, User, Table2, BookOpen, LogIn, UserPlus } from 'lucide-react';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/profile', label: 'Profile', icon: User },
   { to: '/tables', label: 'Tables', icon: Table2 },
+  { to: '/library', label: 'Library', icon: BookOpen },
 ];
 
 const authItems = [

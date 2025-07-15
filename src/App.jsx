@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import { Tables } from './pages/Tables';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
+import { Library } from './pages/Library'; 
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/tables" element={<Tables />} />
+          <Route path="/library" element={<Library />} />
         </Route>
 
       </Routes>
