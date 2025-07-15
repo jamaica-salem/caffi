@@ -1,17 +1,27 @@
 import { useState, useMemo } from 'react';
-import { Card } from '../components/Card'; // Reusable Card component
-import { Search, Plus, X } from 'lucide-react'; // Icons
-import { cn } from '../utils/classnames'; // Optional helper to combine class names
+import { Card } from '../reusable/Card';
+import { Search, Plus, X } from 'lucide-react';
+import clsx from 'clsx'; // Replacing `cn` with `clsx`
 
 export const Library = () => {
-  const [activeTab, setActiveTab] = useState('agencies'); // tabs: 'agencies' | 'auditors'
+  const [activeTab, setActiveTab] = useState('agencies');
   const [searchTerm, setSearchTerm] = useState('');
   const [classificationFilter, setClassificationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
   const agencyData = [
-    { name: 'Department of Agriculture', contact: 'da@email.com / 09123456789', head: 'Atty. Jose Reyes - Director', group: 'National' },
-    { name: 'DOST Region I', contact: 'dost1@email.com / 09999887766', head: 'Engr. Maria Lopez - Regional Director', group: 'Regional' }
+    {
+      name: 'Department of Agriculture',
+      contact: 'da@email.com / 09123456789',
+      head: 'Atty. Jose Reyes - Director',
+      group: 'National',
+    },
+    {
+      name: 'DOST Region I',
+      contact: 'dost1@email.com / 09999887766',
+      head: 'Engr. Maria Lopez - Regional Director',
+      group: 'Regional',
+    },
   ];
 
   const auditorData = [
@@ -38,21 +48,21 @@ export const Library = () => {
       rating: '4.5',
       classification: 'External',
       status: 'Retired',
-    }
+    },
   ];
 
-  // Filtered data based on tab and search/filters
   const filteredAgencies = useMemo(() => {
-    return agencyData.filter(entry =>
+    return agencyData.filter((entry) =>
       entry.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm]);
 
   const filteredAuditors = useMemo(() => {
-    return auditorData.filter(entry =>
-      entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (classificationFilter ? entry.classification === classificationFilter : true) &&
-      (statusFilter ? entry.status === statusFilter : true)
+    return auditorData.filter(
+      (entry) =>
+        entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (classificationFilter ? entry.classification === classificationFilter : true) &&
+        (statusFilter ? entry.status === statusFilter : true)
     );
   }, [searchTerm, classificationFilter, statusFilter]);
 
@@ -68,11 +78,11 @@ export const Library = () => {
     <Card title="Library">
       {/* Tab Navigation */}
       <div className="flex border-b mb-4">
-        {['agencies', 'auditors'].map(tab => (
+        {['agencies', 'auditors'].map((tab) => (
           <button
             key={tab}
             onClick={() => handleTabChange(tab)}
-            className={cn(
+            className={clsx(
               'px-4 py-2 font-semibold capitalize transition',
               activeTab === tab
                 ? 'border-b-4 border-accent text-accent'
@@ -86,7 +96,6 @@ export const Library = () => {
 
       {/* Top Controls */}
       <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-
         {/* Search and Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative">
@@ -109,7 +118,6 @@ export const Library = () => {
 
           {activeTab === 'auditors' && (
             <>
-              {/* Classification Filter */}
               <select
                 value={classificationFilter}
                 onChange={(e) => setClassificationFilter(e.target.value)}
@@ -120,7 +128,6 @@ export const Library = () => {
                 <option value="External">External</option>
               </select>
 
-              {/* Status Filter */}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -187,7 +194,9 @@ export const Library = () => {
               : filteredAuditors.map((item, index) => (
                   <tr key={index} className="hover:bg-primary-light/40 transition">
                     <td className="p-3">{item.name}</td>
-                    <td className="p-3">{item.agency} - {item.position}</td>
+                    <td className="p-3">
+                      {item.agency} - {item.position}
+                    </td>
                     <td className="p-3">{item.contact}</td>
                     <td className="p-3">{item.birthdate}</td>
                     <td className="p-3">{item.expertise}</td>

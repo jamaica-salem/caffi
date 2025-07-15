@@ -10,7 +10,7 @@ import { Library } from './pages/Library';
 
 export default function App() {
   return (
-    <Router>
+    <Router basename="/caffi">
       <Routes>
 
         {/* Public Routes - RootLayout */}
