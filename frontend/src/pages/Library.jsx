@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { Card } from '../reusable/Card';
 import { Search, Plus, X, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
+import api from '../api';
 
 export const Library = () => {
   const [activeTab, setActiveTab] = useState('agencies');
@@ -21,6 +22,9 @@ export const Library = () => {
     position: '',
     contact: '',
   });
+
+
+
   
   const [auditorModalOpen, setAuditorModalOpen] = useState(false);
   const [auditor, setAuditor] = useState({
@@ -45,20 +49,22 @@ export const Library = () => {
 
   const fileInputRef = useRef(null);
 
-  const agencyData = [
-    {
-      name: 'Department of Agriculture',
-      contact: 'da@email.com / 09123456789',
-      head: 'Atty. Jose Reyes - Director',
-      group: 'National',
-    },
-    {
-      name: 'DOST Region I',
-      contact: 'dost1@email.com / 09999887766',
-      head: 'Engr. Maria Lopez - Regional Director',
-      group: 'Regional',
-    },
-  ];
+  const [agencies, setAgencies] = useState([]);
+  const [editingAgencyId, setEditingAgencyId] = useState(null);
+
+  useEffect(() => {
+    fetchAgencies();
+  }, []);
+
+  const fetchAgencies = async () => {
+    try {
+      const response = await api.get('/agencies');
+      setAgencies(response.data);
+    } catch (error) {
+      console.error('Error fetching agencies:', error);
+    }
+  };
+
 
   const auditorData = [
     {
@@ -88,10 +94,10 @@ export const Library = () => {
   ];
 
   const filteredAgencies = useMemo(() => {
-    return agencyData.filter((entry) =>
+    return agencies.filter((entry) =>
       entry.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, agencies]);
 
   const filteredAuditors = useMemo(() => {
     return auditorData.filter(
@@ -112,6 +118,7 @@ export const Library = () => {
   };
 
   const handleAddAgency = () => {
+    setEditingAgencyId(null);
     setNewAgency({
       logo: null,
       logoPreview: null,
@@ -126,6 +133,7 @@ export const Library = () => {
     });
     setAgencyModalOpen(true);
   };
+
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -152,19 +160,65 @@ export const Library = () => {
     }));
   };
 
-  const handleSaveAgency = () => {
-    // In production, you would POST this data to the server
-    console.log('Saving agency:', newAgency);
-    setAgencyModalOpen(false);
-  };
+  const handleSaveAgency = async () => {
+    const formData = new FormData();
+    formData.append('name', newAgency.name);
+    formData.append('short_name', newAgency.shortName);
+    formData.append('classification', newAgency.classification);
+    formData.append('address', newAgency.address);
+    formData.append('head_name', newAgency.head);
+    formData.append('head_position', newAgency.position);
+    formData.append('contact_details', newAgency.contact);
+    formData.append('is_active', newAgency.active);
+    if (newAgency.logo) {
+      formData.append('logo', newAgency.logo);
+    }
 
-  const handleDeleteAgency = () => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this agency?');
-    if (confirmDelete) {
-      console.log('Deleted agency');
+    try {
+      if (editingAgencyId) {
+        await api.post(`/agencies/${editingAgencyId}?_method=PUT`, formData);
+      } else {
+        await api.post('/agencies', formData);
+      }
+      fetchAgencies();
       setAgencyModalOpen(false);
+    } catch (error) {
+      console.error('Failed to save agency:', error);
     }
   };
+
+
+  const handleDeleteAgency = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this agency?');
+    if (!confirmDelete || !editingAgencyId) return;
+
+    try {
+      await api.delete(`/agencies/${editingAgencyId}`);
+      fetchAgencies();
+      setAgencyModalOpen(false);
+    } catch (error) {
+      console.error('Failed to delete agency:', error);
+    }
+  };
+
+  const handleEditAgency = (agency) => {
+    setEditingAgencyId(agency.id);
+    setNewAgency({
+      logo: null,
+      logoPreview: agency.logo_path ? `${import.meta.env.VITE_API_URL}/storage/${agency.logo_path}` : null,
+      active: agency.is_active,
+      name: agency.name,
+      shortName: agency.short_name,
+      classification: agency.classification,
+      address: agency.address,
+      head: agency.head_name,
+      position: agency.head_position,
+      contact: agency.contact_details,
+    });
+    setAgencyModalOpen(true);
+  };
+
+
 
   return (
     <>
@@ -293,7 +347,9 @@ export const Library = () => {
                 <tr key={index} className="hover:bg-primary-light/40 transition">
                   {activeTab === 'agencies' ? (
                     <>
-                      <td className="p-3">{item.name}</td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
+                        {item.name}
+                      </td>
                       <td className="p-3">{item.contact}</td>
                       <td className="p-3">{item.head}</td>
                       <td className="p-3">{item.group}</td>
@@ -548,7 +604,7 @@ export const Library = () => {
               <div className="flex items-center gap-2 md:col-span-2">
                 <select className="w-full border border-gray-300 rounded px-3 py-2" value={auditor.agency} onChange={(e) => setAuditor({ ...auditor, agency: e.target.value })}>
                   <option value="">Select Agency</option>
-                  {agencyData.map((agency, idx) => (
+                  {agencies.map((agency, idx) => (
                     <option key={idx} value={agency.name}>{agency.name}</option>
                   ))}
                 </select>
