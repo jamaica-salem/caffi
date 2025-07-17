@@ -1,3 +1,4 @@
+// Imports
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Card } from '../reusable/Card';
 import { Search, Plus, X, Trash2 } from 'lucide-react';
@@ -5,11 +6,21 @@ import clsx from 'clsx';
 import api from '../api';
 
 export const Library = () => {
+  // -------------------------------
+  // General State
+  // -------------------------------
   const [activeTab, setActiveTab] = useState('agencies');
   const [searchTerm, setSearchTerm] = useState('');
   const [classificationFilter, setClassificationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const fileInputRef = useRef(null);
+
+  // -------------------------------
+  // Agency States & Effects
+  // -------------------------------
   const [agencyModalOpen, setAgencyModalOpen] = useState(false);
+  const [agencies, setAgencies] = useState([]);
+  const [editingAgencyId, setEditingAgencyId] = useState(null);
   const [newAgency, setNewAgency] = useState({
     logo: null,
     logoPreview: null,
@@ -22,35 +33,6 @@ export const Library = () => {
     position: '',
     contact: '',
   });
-
-
-
-  
-  const [auditorModalOpen, setAuditorModalOpen] = useState(false);
-  const [auditor, setAuditor] = useState({
-    classification: 'Internal',
-    active: true,
-    lastName: '',
-    firstName: '',
-    middleName: '',
-    suffix: '',
-    prefix: '',
-    position: '',
-    salary: '',
-    agency: '',
-    expertise: [],
-    email: '',
-    tin: '',
-    birthdate: '',
-    contact: '',
-    status: '',
-  });
-
-
-  const fileInputRef = useRef(null);
-
-  const [agencies, setAgencies] = useState([]);
-  const [editingAgencyId, setEditingAgencyId] = useState(null);
 
   useEffect(() => {
     fetchAgencies();
@@ -65,57 +47,11 @@ export const Library = () => {
     }
   };
 
-
-  const auditorData = [
-    {
-      name: 'Juan Dela Cruz',
-      agency: 'DOST Region I',
-      position: 'Internal Auditor',
-      contact: 'juan@email.com / 09051234567',
-      birthdate: '1990-06-15',
-      expertise: 'Financial Audit',
-      engagements: 'ICT Audit 2023',
-      rating: '4.8',
-      classification: 'Internal',
-      status: 'Connected',
-    },
-    {
-      name: 'Ana Santos',
-      agency: 'Private Firm',
-      position: 'Consultant',
-      contact: 'ana@email.com / 09174569870',
-      birthdate: '1982-04-10',
-      expertise: 'Risk Management',
-      engagements: 'DOST External 2024',
-      rating: '4.5',
-      classification: 'External',
-      status: 'Retired',
-    },
-  ];
-
   const filteredAgencies = useMemo(() => {
     return agencies.filter((entry) =>
       entry.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, agencies]);
-
-  const filteredAuditors = useMemo(() => {
-    return auditorData.filter(
-      (entry) =>
-        entry.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (classificationFilter ? entry.classification === classificationFilter : true) &&
-        (statusFilter ? entry.status === statusFilter : true)
-    );
-  }, [searchTerm, classificationFilter, statusFilter]);
-
-  const handleClearSearch = () => setSearchTerm('');
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setSearchTerm('');
-    setClassificationFilter('');
-    setStatusFilter('');
-    setAgencyModalOpen(false);
-  };
 
   const handleAddAgency = () => {
     setEditingAgencyId(null);
@@ -134,6 +70,69 @@ export const Library = () => {
     setAgencyModalOpen(true);
   };
 
+  const handleSaveAgency = async () => {
+    const formData = new FormData();
+    formData.append('name', newAgency.name || '');
+    formData.append('short_name', newAgency.shortName || '');
+    formData.append('classification', newAgency.classification || '');
+    formData.append('address', newAgency.address || '');
+    formData.append('head_name', newAgency.head || '');
+    formData.append('head_position', newAgency.position || '');
+    formData.append('contact_details', newAgency.contact || '');
+    formData.append('is_active', newAgency.active ? '1' : '0');
+
+    if (newAgency.logo) {
+      formData.append('logo', newAgency.logo);
+    }
+
+    try {
+      const url = editingAgencyId
+        ? `/agencies/${editingAgencyId}?_method=PUT`
+        : '/agencies';
+
+      await api.post(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      fetchAgencies();
+      setAgencyModalOpen(false);
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        console.error('Validation errors:', error.response.data.errors);
+      } else {
+        console.error('Failed to save agency:', error);
+      }
+    }
+  };
+
+  const handleEditAgency = (agency) => {
+    setEditingAgencyId(agency.id);
+    setNewAgency({
+      logo: null,
+      logoPreview: agency.logo_path ? `${import.meta.env.VITE_API_URL}/storage/${agency.logo_path}` : null,
+      active: agency.is_active,
+      name: agency.name,
+      shortName: agency.short_name,
+      classification: agency.classification,
+      address: agency.address,
+      head: agency.head_name,
+      position: agency.head_position,
+      contact: agency.contact_details,
+    });
+    setAgencyModalOpen(true);
+  };
+
+  const handleDeleteAgency = async () => {
+    if (!editingAgencyId || !window.confirm('Are you sure you want to delete this agency?')) return;
+
+    try {
+      await api.delete(`/agencies/${editingAgencyId}`);
+      fetchAgencies();
+      setAgencyModalOpen(false);
+    } catch (error) {
+      console.error('Failed to delete agency:', error);
+    }
+  };
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -160,76 +159,166 @@ export const Library = () => {
     }));
   };
 
-  const handleSaveAgency = async () => {
-    const formData = new FormData();
-    formData.append('name', newAgency.name || '');
-    formData.append('short_name', newAgency.shortName || '');
-    formData.append('classification', newAgency.classification || '');
-    formData.append('address', newAgency.address || '');
-    formData.append('head_name', newAgency.head || '');
-    formData.append('head_position', newAgency.position || '');
-    formData.append('contact_details', newAgency.contact || '');
-    formData.append('is_active', newAgency.active ? '1' : '0'); // convert boolean to string
+  // -------------------------------
+  // Auditor States & Effects
+  // -------------------------------
+  const [auditorModalOpen, setAuditorModalOpen] = useState(false);
+  const [auditors, setAuditors] = useState([]);
+  const [editingAuditorId, setEditingAuditorId] = useState(null);
+  const [newAuditor, setNewAuditor] = useState({
+    is_external: false,
+    is_active: false,
+    last_name: '',
+    first_name: '',
+    middle_name: '',
+    suffix: '',
+    prefix: '',
+    position: '',
+    salary: '',
+    agency_id: '',
+    expertise: '',
+    email: '',
+    tin: '',
+    birthdate: '',
+    contact_no: '',
+    status: '',
+  });
 
-    if (newAgency.logo) {
-      formData.append('logo', newAgency.logo);
+  useEffect(() => {
+    fetchAuditors();
+  }, []);
+
+  const fetchAuditors = async () => {
+    try {
+      const response = await api.get('/auditors');
+      setAuditors(response.data);
+    } catch (error) {
+      console.error('Error fetching auditors:', error);
     }
+  };
+
+  const filteredAuditors = useMemo(() => {
+    return auditors.filter((entry) =>
+      entry.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+    ).filter(entry =>
+      (classificationFilter ? entry.classification === classificationFilter : true) &&
+      (statusFilter ? entry.status === statusFilter : true)
+    );
+  }, [searchTerm, classificationFilter, statusFilter, auditors]);
+
+  const handleAddAuditor = () => {
+    setEditingAuditorId(null);
+    setNewAuditor({
+      is_external: false,
+      is_active: false,
+      last_name: '',
+      first_name: '',
+      middle_name: '',
+      suffix: '',
+      prefix: '',
+      position: '',
+      salary: '',
+      agency_id: '',
+      expertise: '',
+      email: '',
+      tin: '',
+      birthdate: '',
+      contact_no: '',
+      status: '',
+    });
+    setAuditorModalOpen(true);
+  };
+
+  const handleSaveAuditor = async () => {
+    const formData = new FormData();
+    formData.append('is_external', newAuditor.is_external ? '1' : '0');
+    formData.append('is_active', newAuditor.is_active ? '1' : '0');
+    formData.append('last_name', newAuditor.last_name || '');
+    formData.append('first_name', newAuditor.first_name || '');
+    formData.append('middle_name', newAuditor.middle_name || '');
+    formData.append('suffix', newAuditor.suffix || '');
+    formData.append('prefix', newAuditor.prefix || '');
+    formData.append('position', newAuditor.position || '');
+    formData.append('salary', newAuditor.salary || '');
+    formData.append('agency_id', newAuditor.agency_id || '');
+    formData.append('expertise', newAuditor.expertise || '');
+    formData.append('email', newAuditor.email || '');
+    formData.append('tin', newAuditor.tin || '');
+    formData.append('birthdate', newAuditor.birthdate || '');
+    formData.append('contact_no', newAuditor.contact_no || '');
+    formData.append('status', newAuditor.status === 0 || newAuditor.status ? newAuditor.status : '');
+
 
     try {
-      if (editingAgencyId) {
-        await api.post(`/agencies/${editingAgencyId}?_method=PUT`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-      } else {
-        await api.post('/agencies', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-      }
-      fetchAgencies();
-      setAgencyModalOpen(false);
+      const url = editingAuditorId
+        ? `/auditors/${editingAuditorId}?_method=PUT`
+        : '/auditors';
+
+      await api.post(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      fetchAuditors();
+      setAuditorModalOpen(false);
     } catch (error) {
       if (error.response?.data?.errors) {
         console.error('Validation errors:', error.response.data.errors);
       } else {
-        console.error('Failed to save agency:', error);
+        console.error('Failed to save newAuditor:', error);
       }
     }
   };
 
-  
+  const handleEditAuditor = (auditor) => {
+    setEditingAuditorId(auditor.id);
+    setNewAuditor({
+      is_external: auditor.is_external,
+      is_active: auditor.is_active,
+      last_name: auditor.last_name || '',
+      first_name: auditor.first_name || '',
+      middle_name: auditor.middle_name || '',
+      suffix: auditor.suffix || '',
+      prefix: auditor.prefix || '',
+      position: auditor.position || '',
+      salary: auditor.salary || '',
+      agency_id: auditor.agency_id || '',
+      expertise: auditor.expertise || '',
+      email: auditor.email || '',
+      tin: auditor.tin || '',
+      birthdate: auditor.birthdate || '',
+      contact_no: auditor.contact_no || '',
+      status: auditor.status || '',
+    });
+    setAuditorModalOpen(true);
+  };
 
 
-  const handleDeleteAgency = async () => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this agency?');
-    if (!confirmDelete || !editingAgencyId) return;
+  const handleDeleteAuditor = async () => {
+    if (!editingAuditorId || !window.confirm('Are you sure you want to delete this newAuditor?')) return;
 
     try {
-      await api.delete(`/agencies/${editingAgencyId}`);
-      fetchAgencies();
-      setAgencyModalOpen(false);
+      await api.delete(`/auditors/${editingAuditorId}`);
+      fetchAuditors();
+      setAuditorModalOpen(false);
     } catch (error) {
-      console.error('Failed to delete agency:', error);
+      console.error('Failed to delete newAuditor:', error);
     }
   };
 
-  const handleEditAgency = (agency) => {
-    setEditingAgencyId(agency.id);
-    setNewAgency({
-      logo: null,
-      logoPreview: agency.logo_path ? `${import.meta.env.VITE_API_URL}/storage/${agency.logo_path}` : null,
-      active: agency.is_active,
-      name: agency.name,
-      shortName: agency.short_name,
-      classification: agency.classification,
-      address: agency.address,
-      head: agency.head_name,
-      position: agency.head_position,
-      contact: agency.contact_details,
-    });
-    setAgencyModalOpen(true);
+  // -------------------------------
+  // Miscellaneous Handlers
+  // -------------------------------
+  const handleClearSearch = () => setSearchTerm('');
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchTerm('');
+    setClassificationFilter('');
+    setStatusFilter('');
+    setAgencyModalOpen(false);
+    setAuditorModalOpen(false);
   };
-
-
 
   return (
     <>
@@ -320,7 +409,7 @@ export const Library = () => {
             {activeTab === 'auditors' && (
               <button
                 className="bg-accent text-white rounded-lg px-4 py-2 flex items-center gap-2 hover:bg-green-700 transition"
-                onClick={() => setAuditorModalOpen(true)}
+                onClick={handleAddAuditor}
               >
                 <Plus size={16} /> Add
               </button>
@@ -347,8 +436,6 @@ export const Library = () => {
                     <th className="p-3">Contact Details</th>
                     <th className="p-3">Birthdate</th>
                     <th className="p-3">Expertise</th>
-                    <th className="p-3">Engagements</th>
-                    <th className="p-3">Rating</th>
                   </>
                 )}
               </tr>
@@ -373,13 +460,21 @@ export const Library = () => {
                     </>
                   ) : (
                     <>
-                      <td className="p-3">{item.name}</td>
-                      <td className="p-3">{item.agency} - {item.position}</td>
-                      <td className="p-3">{item.contact}</td>
-                      <td className="p-3">{item.birthdate}</td>
-                      <td className="p-3">{item.expertise}</td>
-                      <td className="p-3">{item.engagements}</td>
-                      <td className="p-3">{item.rating}</td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
+                        {item.first_name} {item.middle_name ? item.middle_name + ' ' : ''}{item.last_name} {item.suffix ? item.suffix : ''}
+                      </td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
+                        {item.short_name} {item.position}
+                      </td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
+                        {item.email} {item.contact_no ? `(${item.contact_no})` : ''}
+                      </td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
+                        {item.birthdate ? new Date(item.birthdate).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
+                        {item.expertise ?? 'N/A'}
+                      </td>
                     </>
                   )}
                 </tr>
@@ -577,11 +672,11 @@ export const Library = () => {
               <div className="flex items-center gap-4">
                 <label className="font-medium text-gray-700">Type:</label>
                 <label className="flex items-center gap-1">
-                  <input type="radio" name="aud_class" value="Internal" checked={auditor.classification === 'Internal'} onChange={(e) => setAuditor({ ...auditor, classification: e.target.value })} />
+                  <input type="radio" name="aud_class" value="Internal" checked={newAuditor.classification === 'Internal'} onChange={(e) => setNewAuditor({ ...newAuditor, classification: e.target.value })} />
                   <span className="text-gray-700">Internal</span>
                 </label>
                 <label className="flex items-center gap-1">
-                  <input type="radio" name="aud_class" value="External" checked={auditor.classification === 'External'} onChange={(e) => setAuditor({ ...auditor, classification: e.target.value })} />
+                  <input type="radio" name="aud_class" value="External" checked={newAuditor.classification === 'External'} onChange={(e) => setNewAuditor({ ...newAuditor, classification: e.target.value })} />
                   <span className="text-gray-700">External</span>
                 </label>
               </div>
@@ -589,37 +684,37 @@ export const Library = () => {
               <div className="flex justify-end items-center">
                 <label className="mr-3 font-medium text-gray-700">Active:</label>
                 <div
-                  onClick={() => setAuditor({ ...auditor, active: !auditor.active })}
+                  onClick={() => setNewAuditor({ ...newAuditor, active: !newAuditor.active })}
                   className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition ${
-                    auditor.active ? 'bg-green-500' : 'bg-gray-300'
+                    newAuditor.active ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                 >
                   <span
                     className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                      auditor.active ? 'translate-x-6' : 'translate-x-1'
+                      newAuditor.active ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </div>
               </div>
 
               {/* Second Row */}
-              <input type="text" placeholder="Last Name" value={auditor.lastName} onChange={(e) => setAuditor({ ...auditor, lastName: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-              <input type="text" placeholder="First Name" value={auditor.firstName} onChange={(e) => setAuditor({ ...auditor, firstName: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="Last Name" value={newAuditor.last_name} onChange={(e) => setNewAuditor({ ...newAuditor, last_name: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="First Name" value={newAuditor.first_name} onChange={(e) => setNewAuditor({ ...newAuditor, first_name: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
 
               {/* Third Row */}
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" placeholder="Middle Name" value={auditor.middleName} onChange={(e) => setAuditor({ ...auditor, middleName: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-                <input type="text" placeholder="ex. Jr." value={auditor.suffix} onChange={(e) => setAuditor({ ...auditor, suffix: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-                <input type="text" placeholder="ex. Mr." value={auditor.prefix} onChange={(e) => setAuditor({ ...auditor, prefix: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="Middle Name" value={newAuditor.middle_name} onChange={(e) => setNewAuditor({ ...newAuditor, middle_name: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="ex. Jr." value={newAuditor.suffix} onChange={(e) => setNewAuditor({ ...newAuditor, suffix: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="ex. Mr." value={newAuditor.prefix} onChange={(e) => setNewAuditor({ ...newAuditor, prefix: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
               </div>
 
               {/* Fourth Row */}
-              <input type="text" placeholder="Position" value={auditor.position} onChange={(e) => setAuditor({ ...auditor, position: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-              <input type="text" placeholder="Salary Grade" value={auditor.salary} onChange={(e) => setAuditor({ ...auditor, salary: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="Position" value={newAuditor.position} onChange={(e) => setNewAuditor({ ...newAuditor, position: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="Salary Grade" value={newAuditor.salary} onChange={(e) => setNewAuditor({ ...newAuditor, salary: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
 
               {/* Fifth Row */}
               <div className="flex items-center gap-2 md:col-span-2">
-                <select className="w-full border border-gray-300 rounded px-3 py-2" value={auditor.agency} onChange={(e) => setAuditor({ ...auditor, agency: e.target.value })}>
+                <select className="w-full border border-gray-300 rounded px-3 py-2" value={newAuditor.agency} onChange={(e) => setNewAuditor({ ...newAuditor, agency: e.target.value })}>
                   <option value="">Select Agency</option>
                   {agencies.map((agency, idx) => (
                     <option key={idx} value={agency.name}>{agency.name}</option>
@@ -632,36 +727,61 @@ export const Library = () => {
 
               {/* Sixth Row */}
               <div className="flex items-center gap-2 md:col-span-2">
-                <select multiple className="w-full border border-gray-300 rounded px-3 py-2" value={auditor.expertise} onChange={(e) => setAuditor({ ...auditor, expertise: Array.from(e.target.selectedOptions, opt => opt.value) })}>
-                  {['Project Management', 'IT Audit', 'Data Analysis', 'Financial Audit', 'Risk Management'].map((skill, idx) => (
-                    <option key={idx} value={skill}>{skill}</option>
+                <select
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  value={newAuditor.expertise || ''}
+                  onChange={(e) =>
+                    setNewAuditor({ ...newAuditor, expertise: e.target.value })
+                  }
+                >
+                  <option value="" disabled>Select expertise</option>
+                  {[
+                    'Project Management',
+                    'IT Audit',
+                    'Data Analysis',
+                    'Financial Audit',
+                    'Risk Management',
+                  ].map((skill, idx) => (
+                    <option key={idx} value={skill}>
+                      {skill}
+                    </option>
                   ))}
                 </select>
-                <button type="button" className="bg-accent text-white px-3 py-2 rounded hover:bg-green-700">+</button>
+                <button
+                  type="button"
+                  className="bg-accent text-white px-3 py-2 rounded hover:bg-green-700"
+                >
+                  +
+                </button>
               </div>
+
 
               {/* Seventh Row */}
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="email" placeholder="Email Address" value={auditor.email} onChange={(e) => setAuditor({ ...auditor, email: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-                <input type="text" placeholder="000-000-000" value={auditor.tin} onChange={(e) => setAuditor({ ...auditor, tin: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-                <input type="date" value={auditor.birthdate} onChange={(e) => setAuditor({ ...auditor, birthdate: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="email" placeholder="Email Address" value={newAuditor.email} onChange={(e) => setNewAuditor({ ...newAuditor, email: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="000-000-000" value={newAuditor.tin} onChange={(e) => setNewAuditor({ ...newAuditor, tin: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="date" value={newAuditor.birthdate} onChange={(e) => setNewAuditor({ ...newAuditor, birthdate: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
               </div>
 
               {/* Eighth Row */}
-              <input type="text" placeholder="Contact Number" value={auditor.contact} onChange={(e) => setAuditor({ ...auditor, contact: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
-              <select value={auditor.status} onChange={(e) => {
-                const status = e.target.value;
-                setAuditor({
-                  ...auditor,
-                  status,
-                  active: ['Not Connected', 'Retired', 'Deceased'].includes(status) ? false : auditor.active,
-                });
-              }} className="border border-gray-300 rounded px-3 py-2 w-full">
+              <input type="text" placeholder="Contact Number" value={newAuditor.contact} onChange={(e) => setNewAuditor({ ...newAuditor, contact: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <select
+                value={newAuditor.status ?? ''}
+                onChange={(e) => {
+                  const status = e.target.value;
+                  setNewAuditor({
+                    ...newAuditor,
+                    status: parseInt(status),
+                    active: ['0', '2', '3'].includes(status) ? false : newAuditor.active,
+                  });
+                }}
+                className="border border-gray-300 rounded px-3 py-2 w-full"
+              >
                 <option value="">Select Status</option>
-                <option value="Not Connected">Not Connected</option>
-                <option value="Connected">Connected</option>
-                <option value="Retired">Retired</option>
-                <option value="Deceased">Deceased</option>
+                <option value={0}>Not Connected</option>
+                <option value={1}>Connected</option>
+                <option value={2}>Retired</option>
+                <option value={3}>Deceased</option>
               </select>
             </div>
 
@@ -669,21 +789,13 @@ export const Library = () => {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 className="bg-white border border-accent text-accent px-4 py-2 rounded hover:bg-green-50"
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this auditor?')) {
-                    console.log('Deleting auditor...');
-                    setAuditorModalOpen(false);
-                  }
-                }}
+                onClick={handleDeleteAuditor}
               >
                 Delete
               </button>
               <button
                 className="bg-accent text-white px-4 py-2 rounded hover:bg-green-700"
-                onClick={() => {
-                  console.log('Saving auditor:', auditor);
-                  setAuditorModalOpen(false);
-                }}
+                onClick={handleSaveAuditor}
               >
                 Save
               </button>
