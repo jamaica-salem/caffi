@@ -326,28 +326,34 @@ export const Library = () => {
       {/* AGENCY MODAL FORM */}
       {agencyModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-          <div className="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg relative overflow-auto max-h-screen">
+          <div className="bg-white w-full max-w-3xl p-6 rounded-2xl shadow-2xl relative overflow-auto max-h-screen">
+            
             {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Agency</h2>
+            <div className="flex justify-between items-center border-b pb-3 mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Agency</h2>
               <X
-                className="cursor-pointer hover:text-red-500"
+                className="w-6 h-6 text-gray-500 hover:text-red-600 cursor-pointer transition"
                 onClick={() => setAgencyModalOpen(false)}
               />
             </div>
 
             {/* Form Rows */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              
               {/* Logo and Active Toggle */}
-              <div className="flex flex-col items-start gap-2 relative">
+              <div className="flex flex-col gap-2 relative group">
                 <div
                   onDoubleClick={() => fileInputRef.current.click()}
-                  className="w-32 h-32 border rounded bg-gray-100 flex items-center justify-center cursor-pointer relative group"
+                  className="w-32 h-32 border rounded-lg bg-gray-100 flex items-center justify-center cursor-pointer relative"
                 >
                   {newAgency.logoPreview ? (
-                    <img src={newAgency.logoPreview} alt="Agency Logo" className="object-contain h-full" />
+                    <img
+                      src={newAgency.logoPreview}
+                      alt="Agency Logo"
+                      className="object-contain h-full w-full rounded-lg"
+                    />
                   ) : (
-                    <span className="text-sm text-gray-500">Double click to upload</span>
+                    <span className="text-xs text-gray-400 text-center px-2">Double click to upload</span>
                   )}
                   {newAgency.logoPreview && (
                     <Trash2
@@ -366,31 +372,43 @@ export const Library = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-2 mt-4">
-                <label className="font-medium">Active:</label>
+              <div className="flex justify-end items-center">
+                <label className="mr-3 font-medium text-gray-700">Active:</label>
+                <div
+                  onClick={() => setNewAgency({ ...newAgency, active: !newAgency.active })}
+                  className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition ${
+                    newAgency.active ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                      newAgency.active ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Name */}
+              <div className="col-span-2">
                 <input
-                  type="checkbox"
-                  checked={newAgency.active}
-                  onChange={(e) => setNewAgency({ ...newAgency, active: e.target.checked })}
+                  type="text"
+                  placeholder="Full Name of Agency"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-accent"
+                  value={newAgency.name}
+                  onChange={(e) => setNewAgency({ ...newAgency, name: e.target.value })}
                 />
               </div>
 
-              <input
-                type="text"
-                placeholder="Name"
-                className="col-span-2 border rounded px-3 py-2"
-                value={newAgency.name}
-                onChange={(e) => setNewAgency({ ...newAgency, name: e.target.value })}
-              />
+              {/* Short Name and Classification */}
               <input
                 type="text"
                 placeholder="Short Name / Acronym"
-                className="border rounded px-3 py-2"
+                className="border border-gray-300 rounded-md px-3 py-2 w-full"
                 value={newAgency.shortName}
                 onChange={(e) => setNewAgency({ ...newAgency, shortName: e.target.value })}
               />
               <select
-                className="border rounded px-3 py-2"
+                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-700"
                 value={newAgency.classification}
                 onChange={(e) => setNewAgency({ ...newAgency, classification: e.target.value })}
               >
@@ -402,46 +420,62 @@ export const Library = () => {
                 <option value="ST">Scientific and Technical Service</option>
                 <option value="R0">Regional Offices</option>
               </select>
-              <input
-                type="text"
-                placeholder="Address"
-                className="col-span-2 border rounded px-3 py-2"
-                value={newAgency.address}
-                onChange={(e) => setNewAgency({ ...newAgency, address: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Name of Head of Agency"
-                className="col-span-2 border rounded px-3 py-2"
-                value={newAgency.head}
-                onChange={(e) => setNewAgency({ ...newAgency, head: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Position of Head"
-                className="col-span-2 border rounded px-3 py-2"
-                value={newAgency.position}
-                onChange={(e) => setNewAgency({ ...newAgency, position: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Contact Details"
-                className="col-span-2 border rounded px-3 py-2"
-                value={newAgency.contact}
-                onChange={(e) => setNewAgency({ ...newAgency, contact: e.target.value })}
-              />
+
+              {/* Address */}
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  placeholder="Address"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  value={newAgency.address}
+                  onChange={(e) => setNewAgency({ ...newAgency, address: e.target.value })}
+                />
+              </div>
+
+              {/* Head */}
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  placeholder="Name of Head of Agency"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  value={newAgency.head}
+                  onChange={(e) => setNewAgency({ ...newAgency, head: e.target.value })}
+                />
+              </div>
+
+              {/* Position */}
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  placeholder="Position of Head"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  value={newAgency.position}
+                  onChange={(e) => setNewAgency({ ...newAgency, position: e.target.value })}
+                />
+              </div>
+
+              {/* Contact */}
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  placeholder="Contact Details"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  value={newAgency.contact}
+                  onChange={(e) => setNewAgency({ ...newAgency, contact: e.target.value })}
+                />
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="mt-6 flex justify-end gap-3">
+            {/* Action Buttons */}
+            <div className="mt-8 flex justify-end gap-3">
               <button
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="bg-white border border-accent text-accent px-4 py-2 rounded hover:bg-green-50"
                 onClick={handleDeleteAgency}
               >
                 Delete
               </button>
               <button
-                className="bg-accent text-white px-4 py-2 rounded hover:bg-green-700"
+                className="bg-accent text-white px-5 py-2 rounded-md hover:bg-green-700 transition"
                 onClick={handleSaveAgency}
               >
                 Save
@@ -452,111 +486,104 @@ export const Library = () => {
       )}
 
       {/* AUDITOR MODAL FORM */}
+
       {auditorModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-          <div className="bg-white w-full max-w-4xl p-6 rounded-lg shadow-lg relative overflow-auto max-h-screen">
+          <div className="bg-white w-full max-w-5xl p-6 rounded-2xl shadow-xl overflow-y-auto max-h-screen text-sm">
+            
             {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Auditor</h2>
-              <X
-                className="cursor-pointer hover:text-red-500"
-                onClick={() => setAuditorModalOpen(false)}
-              />
+            <div className="flex justify-between items-center border-b pb-3 mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Auditor</h2>
+              <X className="cursor-pointer hover:text-red-500" onClick={() => setAuditorModalOpen(false)} />
             </div>
 
-            {/* Form */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              {/* Row 1: Classification + Active */}
+            {/* Form Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* First Row */}
               <div className="flex items-center gap-4">
-                <label className="font-medium">Type:</label>
-                <label><input type="radio" name="aud_class" value="Internal" checked={auditor.classification === 'Internal'} onChange={(e) => setAuditor({ ...auditor, classification: e.target.value })} /> Internal</label>
-                <label><input type="radio" name="aud_class" value="External" checked={auditor.classification === 'External'} onChange={(e) => setAuditor({ ...auditor, classification: e.target.value })} /> External</label>
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="font-medium">Active:</label>
-                <input
-                  type="checkbox"
-                  checked={auditor.active}
-                  onChange={(e) => setAuditor({ ...auditor, active: e.target.checked })}
-                />
+                <label className="font-medium text-gray-700">Type:</label>
+                <label className="flex items-center gap-1">
+                  <input type="radio" name="aud_class" value="Internal" checked={auditor.classification === 'Internal'} onChange={(e) => setAuditor({ ...auditor, classification: e.target.value })} />
+                  <span className="text-gray-700">Internal</span>
+                </label>
+                <label className="flex items-center gap-1">
+                  <input type="radio" name="aud_class" value="External" checked={auditor.classification === 'External'} onChange={(e) => setAuditor({ ...auditor, classification: e.target.value })} />
+                  <span className="text-gray-700">External</span>
+                </label>
               </div>
 
-              {/* Row 2 */}
-              <input type="text" placeholder="Last Name" value={auditor.lastName} onChange={(e) => setAuditor({ ...auditor, lastName: e.target.value })} className="border rounded px-3 py-2" />
-              <input type="text" placeholder="First Name" value={auditor.firstName} onChange={(e) => setAuditor({ ...auditor, firstName: e.target.value })} className="border rounded px-3 py-2" />
-
-              {/* Row 3 */}
-              <input type="text" placeholder="Middle Name" value={auditor.middleName} onChange={(e) => setAuditor({ ...auditor, middleName: e.target.value })} className="border rounded px-3 py-2" />
-              <input type="text" placeholder="Name Suffix" value={auditor.suffix} onChange={(e) => setAuditor({ ...auditor, suffix: e.target.value })} className="border rounded px-3 py-2" />
-              <input type="text" placeholder="Prefix / Title" value={auditor.prefix} onChange={(e) => setAuditor({ ...auditor, prefix: e.target.value })} className="border rounded px-3 py-2 md:col-span-2" />
-
-              {/* Row 4 */}
-              <input type="text" placeholder="Position" value={auditor.position} onChange={(e) => setAuditor({ ...auditor, position: e.target.value })} className="border rounded px-3 py-2" />
-              <input type="number" placeholder="Salary" value={auditor.salary} onChange={(e) => setAuditor({ ...auditor, salary: e.target.value })} className="border rounded px-3 py-2" />
-
-              {/* Row 5 */}
-              <div className="flex items-center gap-2 md:col-span-2">
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={auditor.agency}
-                  onChange={(e) => setAuditor({ ...auditor, agency: e.target.value })}
+              <div className="flex justify-end items-center">
+                <label className="mr-3 font-medium text-gray-700">Active:</label>
+                <div
+                  onClick={() => setAuditor({ ...auditor, active: !auditor.active })}
+                  className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition ${
+                    auditor.active ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
                 >
+                  <span
+                    className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                      auditor.active ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Second Row */}
+              <input type="text" placeholder="Last Name" value={auditor.lastName} onChange={(e) => setAuditor({ ...auditor, lastName: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="First Name" value={auditor.firstName} onChange={(e) => setAuditor({ ...auditor, firstName: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+
+              {/* Third Row */}
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" placeholder="Middle Name" value={auditor.middleName} onChange={(e) => setAuditor({ ...auditor, middleName: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="ex. Jr." value={auditor.suffix} onChange={(e) => setAuditor({ ...auditor, suffix: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="ex. Mr." value={auditor.prefix} onChange={(e) => setAuditor({ ...auditor, prefix: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              </div>
+
+              {/* Fourth Row */}
+              <input type="text" placeholder="Position" value={auditor.position} onChange={(e) => setAuditor({ ...auditor, position: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="Salary Grade" value={auditor.salary} onChange={(e) => setAuditor({ ...auditor, salary: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+
+              {/* Fifth Row */}
+              <div className="flex items-center gap-2 md:col-span-2">
+                <select className="w-full border border-gray-300 rounded px-3 py-2" value={auditor.agency} onChange={(e) => setAuditor({ ...auditor, agency: e.target.value })}>
                   <option value="">Select Agency</option>
                   {agencyData.map((agency, idx) => (
                     <option key={idx} value={agency.name}>{agency.name}</option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuditorModalOpen(false);
-                    setAgencyModalOpen(true);
-                  }}
-                  className="bg-accent text-white px-2 py-1 rounded hover:bg-green-700"
-                >
+                <button type="button" onClick={() => { setAuditorModalOpen(false); setAgencyModalOpen(true); }} className="bg-accent text-white px-3 py-2 rounded hover:bg-green-700">
                   +
                 </button>
               </div>
 
-              {/* Row 6 */}
+              {/* Sixth Row */}
               <div className="flex items-center gap-2 md:col-span-2">
-                <select
-                  multiple
-                  className="w-full border rounded px-3 py-2"
-                  value={auditor.expertise}
-                  onChange={(e) => setAuditor({ ...auditor, expertise: Array.from(e.target.selectedOptions, opt => opt.value) })}
-                >
+                <select multiple className="w-full border border-gray-300 rounded px-3 py-2" value={auditor.expertise} onChange={(e) => setAuditor({ ...auditor, expertise: Array.from(e.target.selectedOptions, opt => opt.value) })}>
                   {['Project Management', 'IT Audit', 'Data Analysis', 'Financial Audit', 'Risk Management'].map((skill, idx) => (
                     <option key={idx} value={skill}>{skill}</option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  className="bg-accent text-white px-2 py-1 rounded hover:bg-green-700"
-                >
-                  +
-                </button>
+                <button type="button" className="bg-accent text-white px-3 py-2 rounded hover:bg-green-700">+</button>
               </div>
 
-              {/* Row 7 */}
-              <input type="email" placeholder="Email Address" value={auditor.email} onChange={(e) => setAuditor({ ...auditor, email: e.target.value })} className="border rounded px-3 py-2" />
-              <input type="text" placeholder="TIN" value={auditor.tin} onChange={(e) => setAuditor({ ...auditor, tin: e.target.value })} className="border rounded px-3 py-2" />
-              <input type="date" value={auditor.birthdate} onChange={(e) => setAuditor({ ...auditor, birthdate: e.target.value })} className="border rounded px-3 py-2" />
+              {/* Seventh Row */}
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="email" placeholder="Email Address" value={auditor.email} onChange={(e) => setAuditor({ ...auditor, email: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="text" placeholder="000-000-000" value={auditor.tin} onChange={(e) => setAuditor({ ...auditor, tin: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+                <input type="date" value={auditor.birthdate} onChange={(e) => setAuditor({ ...auditor, birthdate: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              </div>
 
-              {/* Row 8 */}
-              <input type="text" placeholder="Contact Number" value={auditor.contact} onChange={(e) => setAuditor({ ...auditor, contact: e.target.value })} className="border rounded px-3 py-2 md:col-span-1" />
-              <select
-                value={auditor.status}
-                onChange={(e) => {
-                  const status = e.target.value;
-                  setAuditor({
-                    ...auditor,
-                    status,
-                    active: ['Not Connected', 'Retired', 'Deceased'].includes(status) ? false : auditor.active,
-                  });
-                }}
-                className="border rounded px-3 py-2"
-              >
+              {/* Eighth Row */}
+              <input type="text" placeholder="Contact Number" value={auditor.contact} onChange={(e) => setAuditor({ ...auditor, contact: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <select value={auditor.status} onChange={(e) => {
+                const status = e.target.value;
+                setAuditor({
+                  ...auditor,
+                  status,
+                  active: ['Not Connected', 'Retired', 'Deceased'].includes(status) ? false : auditor.active,
+                });
+              }} className="border border-gray-300 rounded px-3 py-2 w-full">
                 <option value="">Select Status</option>
                 <option value="Not Connected">Not Connected</option>
                 <option value="Connected">Connected</option>
@@ -565,10 +592,10 @@ export const Library = () => {
               </select>
             </div>
 
-            {/* Actions */}
+            {/* Action Buttons */}
             <div className="mt-6 flex justify-end gap-3">
               <button
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                className="bg-white border border-accent text-accent px-4 py-2 rounded hover:bg-green-50"
                 onClick={() => {
                   if (window.confirm('Are you sure you want to delete this auditor?')) {
                     console.log('Deleting auditor...');
@@ -591,6 +618,7 @@ export const Library = () => {
           </div>
         </div>
       )}
+
 
     </>
   );
