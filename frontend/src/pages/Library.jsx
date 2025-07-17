@@ -162,30 +162,41 @@ export const Library = () => {
 
   const handleSaveAgency = async () => {
     const formData = new FormData();
-    formData.append('name', newAgency.name);
-    formData.append('short_name', newAgency.shortName);
-    formData.append('classification', newAgency.classification);
-    formData.append('address', newAgency.address);
-    formData.append('head_name', newAgency.head);
-    formData.append('head_position', newAgency.position);
-    formData.append('contact_details', newAgency.contact);
-    formData.append('is_active', newAgency.active);
+    formData.append('name', newAgency.name || '');
+    formData.append('short_name', newAgency.shortName || '');
+    formData.append('classification', newAgency.classification || '');
+    formData.append('address', newAgency.address || '');
+    formData.append('head_name', newAgency.head || '');
+    formData.append('head_position', newAgency.position || '');
+    formData.append('contact_details', newAgency.contact || '');
+    formData.append('is_active', newAgency.active ? '1' : '0'); // convert boolean to string
+
     if (newAgency.logo) {
       formData.append('logo', newAgency.logo);
     }
 
     try {
       if (editingAgencyId) {
-        await api.post(`/agencies/${editingAgencyId}?_method=PUT`, formData);
+        await api.post(`/agencies/${editingAgencyId}?_method=PUT`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       } else {
-        await api.post('/agencies', formData);
+        await api.post('/agencies', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       }
       fetchAgencies();
       setAgencyModalOpen(false);
     } catch (error) {
-      console.error('Failed to save agency:', error);
+      if (error.response?.data?.errors) {
+        console.error('Validation errors:', error.response.data.errors);
+      } else {
+        console.error('Failed to save agency:', error);
+      }
     }
   };
+
+  
 
 
   const handleDeleteAgency = async () => {
@@ -350,9 +361,15 @@ export const Library = () => {
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
                         {item.name}
                       </td>
-                      <td className="p-3">{item.contact}</td>
-                      <td className="p-3">{item.head}</td>
-                      <td className="p-3">{item.group}</td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
+                        {item.contact_details}
+                      </td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
+                        {item.head_name} - {item.head_position}
+                      </td>
+                      <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
+                        {item.classification}
+                      </td>
                     </>
                   ) : (
                     <>
