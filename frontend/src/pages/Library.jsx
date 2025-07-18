@@ -159,6 +159,16 @@ export const Library = () => {
     }));
   };
 
+  const classificationLabels = {
+    C0: 'DOST-CO',
+    SC: 'Sectoral Planning Council',
+    CB: 'Collegial Bodies',
+    RD: 'Research and Development Institutes',
+    ST: 'Scientific and Technical Service',
+    R0: 'Regional Offices',
+  };
+
+
   // -------------------------------
   // Auditor States & Effects
   // -------------------------------
@@ -207,7 +217,7 @@ export const Library = () => {
         (classificationFilter
           ? (classificationFilter === 'External' ? entry.is_external : !entry.is_external)
           : true) &&
-        (statusFilter ? entry.status === statusFilter : true)
+        (statusFilter ? entry.status === Number(statusFilter) : true)
       );
   }, [searchTerm, classificationFilter, statusFilter, auditors]);
 
@@ -278,7 +288,7 @@ export const Library = () => {
   const handleEditAuditor = (auditor) => {
     setEditingAuditorId(auditor.id);
     setNewAuditor({
-      is_external: auditor.is_external,
+      is_external: Boolean(Number(auditor.is_external)),
       is_active: auditor.is_active,
       last_name: auditor.last_name || '',
       first_name: auditor.first_name || '',
@@ -386,10 +396,10 @@ export const Library = () => {
                   className="py-2 px-3 rounded-lg border border-gray-300 text-sm"
                 >
                   <option value="">All Status</option>
-                  <option value="Not Connected">Not Connected</option>
-                  <option value="Connected">Connected</option>
-                  <option value="Retired">Retired</option>
-                  <option value="Deceased">Deceased</option>
+                  <option value="0">Not Connected</option>
+                  <option value="1">Connected</option>
+                  <option value="2">Retired</option>
+                  <option value="3">Deceased</option>
                 </select>
               </>
             )}
@@ -454,13 +464,15 @@ export const Library = () => {
                         {item.name}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
+                        {item.address} <br />
                         {item.contact_details}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
-                        {item.head_name} - {item.head_position}
+                        {item.head_name} <br />
+                        {item.head_position}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAgency(item)}>
-                        {item.classification}
+                        {classificationLabels[item.classification] || item.classification}
                       </td>
                     </>
                   ) : (
@@ -469,13 +481,21 @@ export const Library = () => {
                         {item.first_name} {item.middle_name ? item.middle_name + ' ' : ''}{item.last_name} {item.suffix ? item.suffix : ''}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
-                        {item.short_name} {item.position}
+                        {item.agency?.short_name} <br /> 
+                        {item.position}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
-                        {item.email} {item.contact_no ? `(${item.contact_no})` : ''}
+                        {item.email} <br />
+                        {item.contact_no}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
-                        {item.birthdate ? new Date(item.birthdate).toLocaleDateString() : 'N/A'}
+                        {item.birthdate
+                          ? new Date(item.birthdate).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            })
+                          : 'N/A'}
                       </td>
                       <td className="p-3 cursor-pointer hover:underline" onClick={() => handleEditAuditor(item)}>
                         {item.expertise ?? 'N/A'}
@@ -676,12 +696,10 @@ export const Library = () => {
              {/* First Row */}
               <div className="flex items-center gap-4">
                 <label className="font-medium text-gray-700">Type:</label>
-
-                <label className="flex items-center gap-1">
+                  <label className="flex items-center gap-1">
                   <input
                     type="radio"
                     name="aud_class"
-                    value="false"
                     checked={newAuditor.is_external === false}
                     onChange={() => setNewAuditor({ ...newAuditor, is_external: false })}
                   />
@@ -692,7 +710,6 @@ export const Library = () => {
                   <input
                     type="radio"
                     name="aud_class"
-                    value="true"
                     checked={newAuditor.is_external === true}
                     onChange={() => setNewAuditor({ ...newAuditor, is_external: true })}
                   />
@@ -737,12 +754,17 @@ export const Library = () => {
 
               {/* Fifth Row */}
               <div className="flex items-center gap-2 md:col-span-2">
-                <select className="w-full border border-gray-300 rounded px-3 py-2" value={newAuditor.agency} onChange={(e) => setNewAuditor({ ...newAuditor, agency: e.target.value })}>
+                <select
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  value={newAuditor.agency_id}
+                  onChange={(e) => setNewAuditor({ ...newAuditor, agency_id: e.target.value })}
+                >
                   <option value="">Select Agency</option>
                   {agencies.map((agency, idx) => (
-                    <option key={idx} value={agency.name}>{agency.name}</option>
+                    <option key={idx} value={agency.id}>{agency.name}</option>
                   ))}
                 </select>
+
                 <button type="button" onClick={() => { setAuditorModalOpen(false); setAgencyModalOpen(true); }} className="bg-accent text-white px-3 py-2 rounded hover:bg-green-700">
                   +
                 </button>
@@ -787,7 +809,7 @@ export const Library = () => {
               </div>
 
               {/* Eighth Row */}
-              <input type="text" placeholder="Contact Number" value={newAuditor.contact} onChange={(e) => setNewAuditor({ ...newAuditor, contact: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
+              <input type="text" placeholder="Contact Number" value={newAuditor.contact_no} onChange={(e) => setNewAuditor({ ...newAuditor, contact_no: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
               <select
                 value={newAuditor.status ?? ''}
                 onChange={(e) => {
