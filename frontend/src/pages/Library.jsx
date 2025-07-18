@@ -198,14 +198,19 @@ export const Library = () => {
   };
 
   const filteredAuditors = useMemo(() => {
-    return auditors.filter((entry) =>
-      entry.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.last_name.toLowerCase().includes(searchTerm.toLowerCase())
-    ).filter(entry =>
-      (classificationFilter ? entry.classification === classificationFilter : true) &&
-      (statusFilter ? entry.status === statusFilter : true)
-    );
+    return auditors
+      .filter((entry) =>
+        entry.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .filter(entry =>
+        (classificationFilter
+          ? (classificationFilter === 'External' ? entry.is_external : !entry.is_external)
+          : true) &&
+        (statusFilter ? entry.status === statusFilter : true)
+      );
   }, [searchTerm, classificationFilter, statusFilter, auditors]);
+
 
   const handleAddAuditor = () => {
     setEditingAuditorId(null);
@@ -543,14 +548,14 @@ export const Library = () => {
               <div className="flex justify-end items-center">
                 <label className="mr-3 font-medium text-gray-700">Active:</label>
                 <div
-                  onClick={() => setNewAgency({ ...newAgency, active: !newAgency.active })}
+                  onClick={() => setNewAgency({ ...newAgency, is_active: !newAgency.is_active })}
                   className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition ${
-                    newAgency.active ? 'bg-green-500' : 'bg-gray-300'
+                    newAgency.is_active ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                 >
                   <span
                     className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                      newAgency.active ? 'translate-x-6' : 'translate-x-1'
+                      newAgency.is_active ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </div>
@@ -668,34 +673,52 @@ export const Library = () => {
             {/* Form Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              {/* First Row */}
+             {/* First Row */}
               <div className="flex items-center gap-4">
                 <label className="font-medium text-gray-700">Type:</label>
+
                 <label className="flex items-center gap-1">
-                  <input type="radio" name="aud_class" value="Internal" checked={newAuditor.classification === 'Internal'} onChange={(e) => setNewAuditor({ ...newAuditor, classification: e.target.value })} />
+                  <input
+                    type="radio"
+                    name="aud_class"
+                    value="false"
+                    checked={newAuditor.is_external === false}
+                    onChange={() => setNewAuditor({ ...newAuditor, is_external: false })}
+                  />
                   <span className="text-gray-700">Internal</span>
                 </label>
+
                 <label className="flex items-center gap-1">
-                  <input type="radio" name="aud_class" value="External" checked={newAuditor.classification === 'External'} onChange={(e) => setNewAuditor({ ...newAuditor, classification: e.target.value })} />
+                  <input
+                    type="radio"
+                    name="aud_class"
+                    value="true"
+                    checked={newAuditor.is_external === true}
+                    onChange={() => setNewAuditor({ ...newAuditor, is_external: true })}
+                  />
                   <span className="text-gray-700">External</span>
                 </label>
               </div>
 
+
               <div className="flex justify-end items-center">
                 <label className="mr-3 font-medium text-gray-700">Active:</label>
                 <div
-                  onClick={() => setNewAuditor({ ...newAuditor, active: !newAuditor.active })}
+                  onClick={() =>
+                    setNewAuditor({ ...newAuditor, is_active: !newAuditor.is_active })
+                  }
                   className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition ${
-                    newAuditor.active ? 'bg-green-500' : 'bg-gray-300'
+                    newAuditor.is_active ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                 >
                   <span
                     className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                      newAuditor.active ? 'translate-x-6' : 'translate-x-1'
+                      newAuditor.is_active ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </div>
               </div>
+
 
               {/* Second Row */}
               <input type="text" placeholder="Last Name" value={newAuditor.last_name} onChange={(e) => setNewAuditor({ ...newAuditor, last_name: e.target.value })} className="border border-gray-300 rounded px-3 py-2 w-full" />
